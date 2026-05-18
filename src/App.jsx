@@ -112,6 +112,8 @@ export default function FreshNestCustomerWebsite() {
   const [photoName, setPhotoName] = useState("");
   const [booking, setBooking] = useState({ name: "", phone: "", address: "", date: "", mapLocation: "", notes: "" });
   const [bookings, setBookings] = useState([]);
+  const [showOffer, setShowOffer] = useState(true);
+  const [recentIndex, setRecentIndex] = useState(0);
 
   const filtered = category === "All" ? services : services.filter((service) => service.cat === category);
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
@@ -231,13 +233,17 @@ export default function FreshNestCustomerWebsite() {
   return (
     <div className="min-h-screen bg-[#f7f8fb] text-[#07162a]">
       <Header {...{ menu, setMenu, latestText, cartCount: cart.length, openBooking, openMyBooking: () => setPage("myBooking"), lang, setLang }} />
+      <StickyBookingBar openBooking={openBooking} />
       <main className="mx-auto max-w-7xl px-5">
         <Hero openBooking={openBooking} latest={latest} repeatLast={repeatLast} />
         <ServicesSection {...{ filtered, category, setCategory, favorites, toggleFavorite, openBooking }} />
         <PremiumFeatureShowcase />
+        <PhaseOneGrowthSections openBooking={openBooking} />
         <PlansSection />
         <HomeSections />
       </main>
+      <RecentBookingToast recentIndex={recentIndex} setRecentIndex={setRecentIndex} />
+      {showOffer && <LaunchOfferPopup close={() => setShowOffer(false)} openBooking={openBooking} />}
       <FloatingSupport />
     </div>
   );
@@ -395,6 +401,7 @@ function AddressPaymentConfirm({ booking, setBooking, slot, setSlot, payment, se
   return (
     <Card>
       <SectionTitle n="2" title="Address, Payment & Confirm" sub="Fill all fields to enable WhatsApp booking." />
+      <SavedAddressBox setBooking={setBooking} />
       <div className="rounded-[1.5rem] border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-4">
         <div className="grid gap-3 md:grid-cols-2">
           <input value={booking.name} onChange={(event) => setBooking({ ...booking, name: event.target.value })} className="rounded-xl bg-white px-4 py-4 font-bold outline-none" placeholder="Customer name" />
@@ -455,6 +462,35 @@ function PremiumFeatureShowcase() {
     { title: "Verified Team", text: "Professional staff workflow with proof-based service.", emoji: "✨" },
   ];
   return <section className="py-14"><div className="mb-10 text-center"><div className="inline-flex rounded-full bg-[#061b3f] px-5 py-2 text-xs font-black tracking-widest text-[#f5b72f] shadow-lg">PREMIUM EXPERIENCE</div><h2 className="mt-5 text-4xl font-black text-[#061b3f] md:text-5xl">Why FreshNest Feels Premium</h2><p className="mt-3 text-base font-semibold text-slate-500">Luxury design, transparent pricing and modern booking flow.</p></div><div className="grid gap-6 md:grid-cols-3">{items.map((item) => <div key={item.title} className="rounded-[2rem] border border-white/70 bg-gradient-to-br from-white to-slate-50 p-7 shadow-xl transition hover:-translate-y-2 hover:shadow-2xl"><div className="mb-5 grid h-16 w-16 place-items-center rounded-3xl bg-gradient-to-br from-[#061b3f] to-[#f5b72f] text-3xl shadow-xl">{item.emoji}</div><h3 className="text-xl font-black text-[#061b3f]">{item.title}</h3><p className="mt-3 font-semibold leading-7 text-slate-500">{item.text}</p></div>)}</div><div className="mt-8 rounded-[2rem] bg-gradient-to-r from-[#061b3f] via-[#0a2a5c] to-[#111827] p-8 text-white shadow-2xl"><div className="grid gap-6 md:grid-cols-4"><div><p className="text-4xl font-black text-[#f5b72f]">4.8★</p><p className="font-semibold text-white/70">Customer Rating</p></div><div><p className="text-4xl font-black text-[#f5b72f]">50K+</p><p className="font-semibold text-white/70">Services Completed</p></div><div><p className="text-4xl font-black text-[#f5b72f]">100%</p><p className="font-semibold text-white/70">Transparent Pricing</p></div><div><p className="text-4xl font-black text-[#f5b72f]">Fast</p><p className="font-semibold text-white/70">WhatsApp Booking</p></div></div></div></section>;
+}
+
+function StickyBookingBar({ openBooking }) {
+  return <div className="sticky top-[73px] z-30 border-b border-[#f5b72f]/20 bg-[#061b3f]/95 px-4 py-3 text-white shadow-lg backdrop-blur">
+    <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3">
+      <div className="flex items-center gap-3 text-sm font-black"><span className="rounded-full bg-red-500 px-3 py-1 text-white">Launch Offer</span><span>Flat 15% OFF this week • Only 2 premium slots left today</span></div>
+      <div className="flex gap-2"><button onClick={() => openBooking()} className="rounded-xl bg-[#f5b72f] px-4 py-2 font-black text-[#061b3f]">Book Now</button><button onClick={() => window.open(`https://wa.me/${COMPANY_PHONE}`, "_blank", "noopener,noreferrer")} className="rounded-xl bg-emerald-600 px-4 py-2 font-black text-white">WhatsApp</button></div>
+    </div>
+  </div>;
+}
+
+function SavedAddressBox({ setBooking }) {
+  const addresses = ["Home - Thillai Nagar, Trichy", "Office - Cantonment, Trichy", "Parents Home - Srirangam, Trichy"];
+  return <Card className="mb-5 bg-gradient-to-br from-yellow-50 to-white"><h3 className="text-xl font-black text-[#061b3f]">Saved Addresses</h3><p className="mt-1 text-sm font-bold text-slate-500">Choose address quickly for repeat booking.</p><div className="mt-4 grid gap-3 md:grid-cols-3">{addresses.map((address) => <button key={address} onClick={() => setBooking((old) => ({ ...old, address }))} className="rounded-xl border border-yellow-100 bg-white p-3 text-left text-sm font-black shadow-sm">{address}</button>)}</div></Card>;
+}
+
+function LaunchOfferPopup({ close, openBooking }) {
+  return <div className="fixed inset-0 z-[80] grid place-items-center bg-black/40 p-5 backdrop-blur-sm"><div className="max-w-md rounded-[2rem] bg-white p-8 text-center shadow-2xl"><div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-yellow-100 text-4xl">🎉</div><h2 className="mt-4 text-3xl font-black text-[#061b3f]">Grand Launch Offer</h2><p className="mt-2 font-bold text-slate-600">Book this week and get instant launch discount on cleaning services.</p><div className="mt-5 rounded-2xl bg-[#061b3f] p-5 text-white"><p className="text-sm font-black text-[#f5b72f]">USE COUPON</p><p className="text-3xl font-black">FNFIRST</p></div><button onClick={() => { close(); openBooking(); }} className="mt-5 w-full rounded-xl bg-[#f5b72f] p-4 font-black text-[#061b3f]">Book Now</button><button onClick={close} className="mt-3 text-sm font-black text-slate-500">Maybe later</button></div></div>;
+}
+
+function RecentBookingToast({ recentIndex, setRecentIndex }) {
+  const data = ["Arun from Trichy booked Sofa Shampooing", "Priya from Srirangam booked Deep Cleaning", "Vignesh from Woraiyur booked Water Tank Cleaning"];
+  React.useEffect(() => { const timer = setInterval(() => setRecentIndex((old) => (old + 1) % data.length), 5000); return () => clearInterval(timer); }, []);
+  return <div className="fixed bottom-5 left-5 z-50 hidden rounded-2xl bg-white p-4 text-sm font-black shadow-2xl md:block"><span className="mr-2 inline-block h-2 w-2 rounded-full bg-emerald-500" />{data[recentIndex]} <span className="text-slate-400">2 mins ago</span></div>;
+}
+
+function PhaseOneGrowthSections({ openBooking }) {
+  const reviews = ["4.9 ★ Arun Kumar - Sofa looks brand new", "5.0 ★ Priya S - Kitchen cleaning was excellent", "4.8 ★ Vignesh R - Very professional team"];
+  return <section className="py-12"><div className="grid gap-6 lg:grid-cols-2"><Card className="bg-gradient-to-br from-white to-yellow-50"><h2 className="text-3xl font-black text-[#061b3f]">Google Reviews Style Trust</h2><div className="mt-5 grid gap-3">{reviews.map((r) => <div key={r} className="rounded-xl bg-white p-4 font-bold shadow-sm">{r}</div>)}</div></Card><Card className="bg-gradient-to-br from-[#061b3f] to-[#0a2a5c] text-white"><h2 className="text-3xl font-black text-[#f5b72f]">Combo Packages</h2><div className="mt-5 grid gap-3"><div className="rounded-xl bg-white/10 p-4"><b>Home Hygiene Combo</b><p className="text-sm text-white/60">Sofa + Fridge + AC Filter</p></div><div className="rounded-xl bg-white/10 p-4"><b>Move-in Deep Clean</b><p className="text-sm text-white/60">Unfurnished cleaning + tank + pest</p></div></div><button onClick={() => openBooking()} className="mt-5 rounded-xl bg-[#f5b72f] px-5 py-3 font-black text-[#061b3f]">Build My Combo</button></Card></div><Card className="mt-6 bg-gradient-to-br from-blue-50 to-white"><div className="grid gap-5 md:grid-cols-[1fr_auto]"><div><h2 className="text-3xl font-black text-[#061b3f]">Commercial & Apartment Quote</h2><p className="mt-2 font-semibold text-slate-600">Office, apartment, showroom and bulk cleaning enquiry.</p></div><button onClick={() => window.open(`https://wa.me/${COMPANY_PHONE}?text=${encodeURIComponent("Hi FreshNest, I need a commercial/apartment bulk cleaning quote")}`, "_blank", "noopener,noreferrer")} className="rounded-xl bg-[#061b3f] px-6 py-4 font-black text-white">Get Quote</button></div></Card></section>;
 }
 
 function PlansSection() {
