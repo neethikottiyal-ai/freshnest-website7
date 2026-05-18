@@ -1,4 +1,12 @@
 import React, { useMemo, useState } from "react";
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import {
   Home,
   Sofa,
@@ -119,7 +127,17 @@ export default function FreshNestCustomerWebsite() {
   const [otpCode, setOtpCode] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
   const [callback, setCallback] = useState({ name: "", phone: "", time: "" });
+  const firebaseConfig = {
+  apiKey: "AIzaSyDRf6GybMLt-vadzBcN9uyn706ipiPf8s",
+  authDomain: "freshnest-90da8.firebaseapp.com",
+  projectId: "freshnest-90da8",
+  storageBucket: "freshnest-90da8.firebasestorage.app",
+  messagingSenderId: "805813095058",
+  appId: "1:805813095058:web:d8a4cf4da935b47c7db44b"
+};
 
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
   const filtered = category === "All" ? services : services.filter((service) => service.cat === category);
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
   const activeCoupon = coupons.find((item) => item.code === coupon && subtotal >= item.min);
@@ -190,7 +208,7 @@ export default function FreshNestCustomerWebsite() {
     if (!opened) window.location.href = url;
   }
 
-  function confirmBooking() {
+async function confirmBooking() {
     if (!canConfirm) return;
     const order = {
       id: `FN${Date.now().toString().slice(-8)}`,
@@ -213,7 +231,14 @@ export default function FreshNestCustomerWebsite() {
       timeline: ["Booked", "Team Assigned", "On the Way", "Work Started", "Completed"],
     };
     setBookings((old) => [order, ...old]);
-    sendWhatsApp(order);
+    await addDoc(collection(db, "bookings"), {
+  ...order,
+  source: "Website",
+  paymentStatus: payment || "Pending",
+  createdAt: serverTimestamp()
+});
+
+sendWhatsApp(order);
     setTimeout(() => {
       setPage("home");
       window.scrollTo({ top: 0, behavior: "smooth" });
