@@ -282,7 +282,7 @@ function Header({ menu, setMenu, latestText, cartCount, openBooking, openMyBooki
 
 function Hero({ openBooking, latest, repeatLast }) {
   return (
-    <section id="home" className="relative -mx-5 overflow-hidden bg-[#061b3f] text-white">
+    <section id="home" className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden bg-[#061b3f] text-white">
       <div className="absolute inset-0">
         <img className="h-full w-full object-cover opacity-70" src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=90" alt="luxury home" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#061b3f] via-[#061b3f]/80 to-[#061b3f]/15" />
