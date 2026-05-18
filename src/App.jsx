@@ -114,6 +114,11 @@ export default function FreshNestCustomerWebsite() {
   const [bookings, setBookings] = useState([]);
   const [showOffer, setShowOffer] = useState(true);
   const [recentIndex, setRecentIndex] = useState(0);
+  const [showOtp, setShowOtp] = useState(false);
+  const [otpMobile, setOtpMobile] = useState("");
+  const [otpCode, setOtpCode] = useState("");
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [callback, setCallback] = useState({ name: "", phone: "", time: "" });
 
   const filtered = category === "All" ? services : services.filter((service) => service.cat === category);
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
@@ -232,24 +237,26 @@ export default function FreshNestCustomerWebsite() {
 
   return (
     <div className="min-h-screen bg-[#f7f8fb] text-[#07162a]">
-      <Header {...{ menu, setMenu, latestText, cartCount: cart.length, openBooking, openMyBooking: () => setPage("myBooking"), lang, setLang }} />
+      <Header {...{ menu, setMenu, latestText, cartCount: cart.length, openBooking, openMyBooking: () => setPage("myBooking"), lang, setLang, setShowOtp, loggedIn }} />
       <StickyBookingBar openBooking={openBooking} />
       <main className="mx-auto max-w-7xl px-5">
         <Hero openBooking={openBooking} latest={latest} repeatLast={repeatLast} />
         <ServicesSection {...{ filtered, category, setCategory, favorites, toggleFavorite, openBooking }} />
         <PremiumFeatureShowcase />
         <PhaseOneGrowthSections openBooking={openBooking} />
+        <PhaseTwoPowerSections latest={latest} bookings={bookings} sendWhatsApp={sendWhatsApp} callback={callback} setCallback={setCallback} />
         <PlansSection />
         <HomeSections />
       </main>
       <RecentBookingToast recentIndex={recentIndex} setRecentIndex={setRecentIndex} />
       {showOffer && <LaunchOfferPopup close={() => setShowOffer(false)} openBooking={openBooking} />}
+      {showOtp && <OtpLoginModal close={() => setShowOtp(false)} otpMobile={otpMobile} setOtpMobile={setOtpMobile} otpCode={otpCode} setOtpCode={setOtpCode} setLoggedIn={setLoggedIn} />}
       <FloatingSupport />
     </div>
   );
 }
 
-function Header({ menu, setMenu, latestText, cartCount, openBooking, openMyBooking, lang, setLang }) {
+function Header({ menu, setMenu, latestText, cartCount, openBooking, openMyBooking, lang, setLang, setShowOtp, loggedIn }) {
   return (
     <header className="sticky top-0 z-40 border-b border-[#15325c] bg-[#061b3f] text-white shadow-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3">
@@ -264,6 +271,7 @@ function Header({ menu, setMenu, latestText, cartCount, openBooking, openMyBooki
         </nav>
         <div className="hidden items-center gap-3 md:flex">
           <button onClick={() => setLang(lang === "EN" ? "தமிழ்" : "EN")} className="rounded-full bg-white/10 px-4 py-2 text-sm font-black">{lang}</button>
+          <button onClick={() => setShowOtp(true)} className="rounded-full bg-white/10 px-4 py-2 text-sm font-black">{loggedIn ? "Profile" : "Login"}</button>
           <button onClick={() => alert("Call FreshNest: 86374 14008")} className="rounded-xl bg-[#f5b72f] px-5 py-3 text-left text-sm font-black text-[#061b3f] shadow-lg">
             <Phone className="mr-2 inline" size={18} /> Call Now<br /><span className="text-xs">86374 14008</span>
           </button>
@@ -491,6 +499,21 @@ function RecentBookingToast({ recentIndex, setRecentIndex }) {
 function PhaseOneGrowthSections({ openBooking }) {
   const reviews = ["4.9 ★ Arun Kumar - Sofa looks brand new", "5.0 ★ Priya S - Kitchen cleaning was excellent", "4.8 ★ Vignesh R - Very professional team"];
   return <section className="py-12"><div className="grid gap-6 lg:grid-cols-2"><Card className="bg-gradient-to-br from-white to-yellow-50"><h2 className="text-3xl font-black text-[#061b3f]">Google Reviews Style Trust</h2><div className="mt-5 grid gap-3">{reviews.map((r) => <div key={r} className="rounded-xl bg-white p-4 font-bold shadow-sm">{r}</div>)}</div></Card><Card className="bg-gradient-to-br from-[#061b3f] to-[#0a2a5c] text-white"><h2 className="text-3xl font-black text-[#f5b72f]">Combo Packages</h2><div className="mt-5 grid gap-3"><div className="rounded-xl bg-white/10 p-4"><b>Home Hygiene Combo</b><p className="text-sm text-white/60">Sofa + Fridge + AC Filter</p></div><div className="rounded-xl bg-white/10 p-4"><b>Move-in Deep Clean</b><p className="text-sm text-white/60">Unfurnished cleaning + tank + pest</p></div></div><button onClick={() => openBooking()} className="mt-5 rounded-xl bg-[#f5b72f] px-5 py-3 font-black text-[#061b3f]">Build My Combo</button></Card></div><Card className="mt-6 bg-gradient-to-br from-blue-50 to-white"><div className="grid gap-5 md:grid-cols-[1fr_auto]"><div><h2 className="text-3xl font-black text-[#061b3f]">Commercial & Apartment Quote</h2><p className="mt-2 font-semibold text-slate-600">Office, apartment, showroom and bulk cleaning enquiry.</p></div><button onClick={() => window.open(`https://wa.me/${COMPANY_PHONE}?text=${encodeURIComponent("Hi FreshNest, I need a commercial/apartment bulk cleaning quote")}`, "_blank", "noopener,noreferrer")} className="rounded-xl bg-[#061b3f] px-6 py-4 font-black text-white">Get Quote</button></div></Card></section>;
+}
+
+function OtpLoginModal({ close, otpMobile, setOtpMobile, otpCode, setOtpCode, setLoggedIn }) {
+  function verify() {
+    if (otpMobile.length >= 10 && otpCode.length >= 4) {
+      setLoggedIn(true);
+      close();
+    }
+  }
+  return <div className="fixed inset-0 z-[90] grid place-items-center bg-black/40 p-5 backdrop-blur-sm"><div className="w-full max-w-md rounded-[2rem] bg-white p-8 shadow-2xl"><h2 className="text-3xl font-black text-[#061b3f]">Customer Login</h2><p className="mt-2 font-bold text-slate-500">Login with mobile OTP to view booking history and saved address.</p><input value={otpMobile} onChange={(e) => setOtpMobile(e.target.value.replace(/[^0-9]/g, ""))} className="mt-5 w-full rounded-xl bg-slate-50 px-4 py-4 font-bold outline-none" placeholder="Mobile number" /><div className="mt-3 flex gap-2"><input value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ""))} className="flex-1 rounded-xl bg-slate-50 px-4 py-4 font-bold outline-none" placeholder="Enter OTP" /><button onClick={() => setOtpCode("1234")} className="rounded-xl bg-yellow-400 px-4 py-3 font-black">Send OTP</button></div><button onClick={verify} className="mt-5 w-full rounded-xl bg-[#061b3f] p-4 font-black text-white">Verify & Login</button><button onClick={close} className="mt-3 w-full text-sm font-black text-slate-500">Close</button></div></div>;
+}
+
+function PhaseTwoPowerSections({ latest, bookings, sendWhatsApp, callback, setCallback }) {
+  const tracker = latest?.timeline || ["Booked", "Team Assigned", "On the Way", "Work Started", "Completed"];
+  return <section className="py-12"><div className="mb-7"><h2 className="text-3xl font-black text-[#061b3f]">Customer Power Tools</h2><p className="text-sm font-bold text-slate-500">Phase 2 features for booking management, invoice, support and payment.</p></div><div className="grid gap-6 lg:grid-cols-2"><Card className="bg-gradient-to-br from-[#061b3f] to-[#0a2a5c] text-white"><h3 className="text-2xl font-black text-[#f5b72f]">Live Booking Tracker</h3><div className="mt-5 grid gap-3">{tracker.map((step, index) => <div key={step} className="flex items-center gap-3 rounded-xl bg-white/10 p-3"><div className="grid h-8 w-8 place-items-center rounded-full bg-[#f5b72f] font-black text-[#061b3f]">{index + 1}</div><b>{step}</b></div>)}</div></Card><Card><h3 className="text-2xl font-black text-[#061b3f]">Invoice & Payment</h3><p className="mt-2 font-semibold text-slate-500">Download invoice, share invoice on WhatsApp and prepare online payment.</p><div className="mt-5 grid gap-3 md:grid-cols-2"><button onClick={() => latest ? sendWhatsApp(latest) : alert("No booking yet")} className="rounded-xl bg-emerald-600 p-4 font-black text-white">WhatsApp Invoice</button><button onClick={() => alert("PDF invoice module ready placeholder")} className="rounded-xl bg-[#061b3f] p-4 font-black text-white">Download Invoice</button><button onClick={() => alert("Razorpay/PhonePe gateway can be connected here")} className="rounded-xl bg-yellow-400 p-4 font-black text-[#061b3f] md:col-span-2">Pay Online</button></div></Card><Card><h3 className="text-2xl font-black text-[#061b3f]">Callback Request</h3><div className="mt-4 grid gap-3"><input value={callback.name} onChange={(e) => setCallback({ ...callback, name: e.target.value })} className="rounded-xl bg-slate-50 p-4 font-bold outline-none" placeholder="Name" /><input value={callback.phone} onChange={(e) => setCallback({ ...callback, phone: e.target.value.replace(/[^0-9]/g, "") })} className="rounded-xl bg-slate-50 p-4 font-bold outline-none" placeholder="Phone" /><select value={callback.time} onChange={(e) => setCallback({ ...callback, time: e.target.value })} className="rounded-xl bg-slate-50 p-4 font-bold outline-none"><option>Call me in 5 mins</option><option>Call me today evening</option><option>Call me tomorrow</option></select><button onClick={() => window.open(`https://wa.me/${COMPANY_PHONE}?text=${encodeURIComponent(`Callback request: ${callback.name} ${callback.phone} ${callback.time}`)}`, "_blank", "noopener,noreferrer")} className="rounded-xl bg-[#061b3f] p-4 font-black text-white">Request Callback</button></div></Card><Card className="bg-gradient-to-br from-yellow-50 to-white"><h3 className="text-2xl font-black text-[#061b3f]">Revisit / Complaint Support</h3><p className="mt-2 font-semibold text-slate-600">Not satisfied? Request a revisit or service support through WhatsApp.</p><button onClick={() => window.open(`https://wa.me/${COMPANY_PHONE}?text=${encodeURIComponent("Hi FreshNest, I need revisit/support for my booking")}`, "_blank", "noopener,noreferrer")} className="mt-5 rounded-xl bg-yellow-400 px-5 py-4 font-black text-[#061b3f]">Request Support</button><div className="mt-5 rounded-xl bg-white p-4 font-bold text-slate-600">Customer Dashboard: {bookings.length} booking(s) saved</div></Card></div></section>;
 }
 
 function PlansSection() {
