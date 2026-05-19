@@ -210,7 +210,7 @@ const db = getFirestore(app);
 
 async function confirmBooking() {
     if (!canConfirm) return;
-  const order = {
+ const order = {
   id: `FNS${Date.now().toString().slice(-8)}`,
   name: booking.name || "",
   phone: booking.phone || "",
@@ -220,22 +220,22 @@ async function confirmBooking() {
   slot: slot || "",
   payment: payment || "Cash",
   notes: booking.notes || "",
-gift: gift || false,
+  gift: gift || false,
 
-items: cart.map((item) => ({
-  id: item.id || "",
-  name: item.name || "",
-  qty: Number(item.qty || 1),
-  price: Number(item.price || 0),
-  total: Number((item.price || 0) * (item.qty || 1))
-})),
- 
+  items: cart.map((item) => ({
+    id: item.id || "",
+    name: item.name || "",
+    qty: Number(item.qty || 1),
+    price: Number(item.price || 0),
+    total: Number(item.price || 0) * Number(item.qty || 1),
+  })),
+
   subtotal: subtotal || 0,
   discount: discount || 0,
   platformFee: platformFee || 0,
   total: total || 0,
   status: "Confirmed",
-  timeline: ["Booked"]
+  timeline: ["Booked"],
 };
     setBookings((old) => [order, ...old]);
   
