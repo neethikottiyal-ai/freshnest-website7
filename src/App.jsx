@@ -220,14 +220,16 @@ async function confirmBooking() {
   slot: slot || "",
   payment: payment || "Cash",
   notes: booking.notes || "",
-  gift: gift || false,
- items: cart.map((item) => ({
+gift: gift || false,
+photoName: photoName || "",
+items: cart.map((item) => ({
   id: item.id || "",
   name: item.name || "",
   qty: Number(item.qty || 1),
   price: Number(item.price || 0),
   total: Number((item.price || 0) * (item.qty || 1))
 })),
+ 
   subtotal: subtotal || 0,
   discount: discount || 0,
   platformFee: platformFee || 0,
