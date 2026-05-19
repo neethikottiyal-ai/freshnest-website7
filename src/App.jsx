@@ -1,12 +1,12 @@
 import React, { useMemo, useState } from "react";
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp } from "firebase/app";
 import {
   getFirestore,
   collection,
   addDoc,
   serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+} from "firebase/firestore";
 import {
   Home,
   Sofa,
