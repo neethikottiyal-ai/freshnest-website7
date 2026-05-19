@@ -210,26 +210,25 @@ const db = getFirestore(app);
 
 async function confirmBooking() {
     if (!canConfirm) return;
-    const order = {
-      id: `FN${Date.now().toString().slice(-8)}`,
-      name: booking.name,
-      phone: booking.phone,
-      address: booking.address,
-      mapLocation: booking.mapLocation,
-      date: booking.date,
-      slot,
-      payment,
-      notes: booking.notes,
-      gift,
-      photoName,
-      items: cart,
-      subtotal,
-      discount,
-      platformFee,
-      total,
-      status: "Confirmed",
-      timeline: ["Booked", "Team Assigned", "On the Way", "Work Started", "Completed"],
-    };
+  const order = {
+  id: `FNS${Date.now().toString().slice(-8)}`,
+  name: booking.name || "",
+  phone: booking.phone || "",
+  address: booking.address || "",
+  mapLocation: booking.mapLocation || "",
+  date: booking.date || "",
+  slot: slot || "",
+  payment: payment || "Cash",
+  notes: booking.notes || "",
+  gift: gift || false,
+  items: cart || [],
+  subtotal: subtotal || 0,
+  discount: discount || 0,
+  platformFee: platformFee || 0,
+  total: total || 0,
+  status: "Confirmed",
+  timeline: ["Booked"]
+};
     setBookings((old) => [order, ...old]);
   
 try {
@@ -362,7 +361,7 @@ function Hero({ openBooking, latest, repeatLast }) {
 }
 
 function BookingPage(props) {
-  const { cart, addService, changeQty, setItemQty, favorites, toggleFavorite, coupon, setCoupon, subtotal, discount, platformFee, total, booking, setBooking, slot, setSlot, payment, setPayment, canConfirm, confirmBooking, useCurrentLocation, openGoogleMap, latest, repeatLast, setPage, gift, setGift, photoName, setPhotoName } = props;
+  const { cart, addService, changeQty, setItemQty, favorites, toggleFavorite, coupon, setCoupon, subtotal, discount, platformFee, total, booking, setBooking, slot, setSlot, payment, setPayment, canConfirm, confirmBooking, useCurrentLocation, openGoogleMap, latest, repeatLast, setPage, gift, setGift, setPhotoName } = props;
   return (
     <div className="min-h-screen bg-[#faf9f5]">
       <header className="sticky top-0 z-40 border-b bg-white/90 backdrop-blur-xl">
