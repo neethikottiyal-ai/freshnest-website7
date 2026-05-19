@@ -407,7 +407,7 @@ function BookingPage(props) {
         <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="space-y-5">
             <SelectAndCart {...{ cart, addService, changeQty, setItemQty, favorites, toggleFavorite, coupon, setCoupon, subtotal, discount, platformFee, total }} />
-            <AddressPaymentConfirm {...{ booking, setBooking, slot, setSlot, payment, setPayment, useCurrentLocation, openGoogleMap, canConfirm, confirmBooking, total, gift, setGift, photoName, setPhotoName, saving }} />
+           <AddressPaymentConfirm {...{ booking, setBooking, slot, setSlot, payment, setPayment, useCurrentLocation, openGoogleMap, canConfirm, confirmBooking, total, gift, setGift, photoName, setPhotoName, saving }} />
           </div>
           <StickySummary cart={cart} total={total} latest={latest} repeatLast={repeatLast} />
         </div>
