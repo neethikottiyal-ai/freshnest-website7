@@ -88,6 +88,12 @@ function money(value) {
 }
 
 function openSafeUrl(url) {
+  try {
+    window.open(url, "_blank");
+  } catch {
+    window.location.assign(url);
+  }
+}
   const opened = window.open(url, "_blank", "noopener,noreferrer");
   if (!opened) window.location.href = url;
 }
@@ -166,12 +172,19 @@ export default function FreshNestCustomerWebsite() {
     setFavorites((old) => old.includes(id) ? old.filter((item) => item !== id) : [...old, id]);
   }
 
-  function openBooking(service) {
+ function openBooking(service = null) {
+  try {
     if (service) addService(service);
-    setPage("booking");
     setMenu(false);
-    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
+    setPage("booking");
+    requestAnimationFrame(() => {
+      window.scrollTo(0, 0);
+    });
+  } catch (err) {
+    console.error(err);
+    alert("Booking page loading error");
   }
+}
 
   function useCurrentLocation() {
     if (!navigator.geolocation) {
