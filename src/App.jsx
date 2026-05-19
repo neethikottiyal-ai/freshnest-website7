@@ -231,13 +231,19 @@ async function confirmBooking() {
       timeline: ["Booked", "Team Assigned", "On the Way", "Work Started", "Completed"],
     };
     setBookings((old) => [order, ...old]);
-    await addDoc(collection(db, "bookings"), {
-  ...order,
-  source: "Website",
-  paymentStatus: payment || "Pending",
-  createdAt: serverTimestamp()
-});
-
+  
+try {
+  await addDoc(collection(db, "bookings"), {
+    ...order,
+    source: "Website",
+    paymentStatus: payment || "Pending",
+    createdAt: serverTimestamp()
+  });
+  alert("Booking saved successfully!");
+} catch (error) {
+  console.error("Firebase booking save error:", error);
+  alert("Firebase error: " + error.message);
+}
 sendWhatsApp(order);
     setTimeout(() => {
       setPage("home");
