@@ -88,12 +88,6 @@ function money(value) {
 }
 
 function openSafeUrl(url) {
-  try {
-    window.open(url, "_blank");
-  } catch {
-    window.location.assign(url);
-  }
-}
   const opened = window.open(url, "_blank", "noopener,noreferrer");
   if (!opened) window.location.href = url;
 }
@@ -172,19 +166,12 @@ export default function FreshNestCustomerWebsite() {
     setFavorites((old) => old.includes(id) ? old.filter((item) => item !== id) : [...old, id]);
   }
 
- function openBooking(service = null) {
-  try {
+  function openBooking(service) {
     if (service) addService(service);
-    setMenu(false);
     setPage("booking");
-    requestAnimationFrame(() => {
-      window.scrollTo(0, 0);
-    });
-  } catch (err) {
-    console.error(err);
-    alert("Booking page loading error");
+    setMenu(false);
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
   }
-}
 
   function useCurrentLocation() {
     if (!navigator.geolocation) {
@@ -407,7 +394,7 @@ function BookingPage(props) {
         <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="space-y-5">
             <SelectAndCart {...{ cart, addService, changeQty, setItemQty, favorites, toggleFavorite, coupon, setCoupon, subtotal, discount, platformFee, total }} />
-           <AddressPaymentConfirm {...{ booking, setBooking, slot, setSlot, payment, setPayment, useCurrentLocation, openGoogleMap, canConfirm, confirmBooking, total, gift, setGift, photoName, setPhotoName, saving }} />
+            <AddressPaymentConfirm {...{ booking, setBooking, slot, setSlot, payment, setPayment, useCurrentLocation, openGoogleMap, canConfirm, confirmBooking, total, gift, setGift, photoName, setPhotoName, saving }} />
           </div>
           <StickySummary cart={cart} total={total} latest={latest} repeatLast={repeatLast} />
         </div>
