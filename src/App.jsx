@@ -221,7 +221,7 @@ async function confirmBooking() {
   payment: payment || "Cash",
   notes: booking.notes || "",
 gift: gift || false,
-photoName: photoName || "",
+
 items: cart.map((item) => ({
   id: item.id || "",
   name: item.name || "",
